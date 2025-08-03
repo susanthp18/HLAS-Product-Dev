@@ -1,0 +1,14 @@
+TABLE 1 FROM HOSPITAL INSURANCE:
+For a Single Hospital insurance plan, the discount for a Monthly payment type is 0%.
+For a Single Hospital insurance plan, the discount for an Annual payment type is 5%.
+For a Couple Hospital insurance plan, the discount for a Monthly payment type is 5%.
+For a Couple Hospital insurance plan, the discount for an Annual payment type is 10%.
+
+TABLE 2 FROM HOSPITAL INSURANCE:
+The Hospital insurance provides a Daily Hospital Cash benefit of S$100 for the Silver plan, S$200 for the Premier plan, and S$300 for the Titanium plan, payable per day up to 365 days.
+The Hospital insurance provides a Triple Hospital Cash (in ICU) benefit of S$300 for the Silver plan, S$600 for the Premier plan, and S$900 for the Titanium plan, payable per day up to 30 days.
+The Hospital insurance provides a Recuperation Benefit of S$50 for the Silver plan, S$75 for the Premier plan, and S$100 for the Titanium plan, payable per day up to 30 days.
+The Hospital insurance provides a Special COVID-19 Benefit with a maximum payable amount of S$10,000 for the Silver, Premier, and Titanium plans.
+The Hospital insurance provides a maximum benefit of S$500 for Ambulance and Transportation expenses for the Silver, Premier, and Titanium plans.
+The Hospital insurance offers a No Claim Bonus of 20% for the Silver, Premier, and Titanium plans.
+

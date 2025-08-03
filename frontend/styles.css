@@ -1,0 +1,333 @@
+/* HLAS Insurance Assistant Styles */
+
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --info-color: #0dcaf0;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+}
+
+body {
+    background-color: #f5f7fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Chat Interface */
+.chat-container {
+    height: 400px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+    background-color: white;
+}
+
+.message {
+    margin-bottom: 1rem;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.user-message {
+    text-align: right;
+}
+
+.user-message .message-content {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem 1rem 0.25rem 1rem;
+    display: inline-block;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+.assistant-message .message-content {
+    background-color: var(--light-color);
+    color: var(--dark-color);
+    padding: 0.75rem 1rem;
+    border-radius: 1rem 1rem 1rem 0.25rem;
+    display: inline-block;
+    max-width: 85%;
+    word-wrap: break-word;
+    border-left: 4px solid var(--primary-color);
+}
+
+.message-meta {
+    font-size: 0.75rem;
+    color: var(--secondary-color);
+    margin-top: 0.25rem;
+}
+
+.confidence-badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+}
+
+.confidence-high {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.confidence-medium {
+    background-color: var(--warning-color);
+    color: var(--dark-color);
+}
+
+.confidence-low {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+/* Citations */
+.citations {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #dee2e6;
+}
+
+.citations h6 {
+    font-size: 0.8rem;
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+}
+
+.citation-item {
+    font-size: 0.75rem;
+    color: var(--secondary-color);
+    margin-bottom: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    border-left: 3px solid var(--info-color);
+}
+
+.citation-relevance {
+    float: right;
+    font-weight: bold;
+}
+
+/* Statistics */
+.stat-item {
+    padding: 0.5rem;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--secondary-color);
+}
+
+/* Product List */
+.product-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.product-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.9rem;
+}
+
+.product-item:last-child {
+    border-bottom: none;
+}
+
+/* Status Indicators */
+.status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.status-healthy {
+    background-color: var(--success-color);
+}
+
+.status-warning {
+    background-color: var(--warning-color);
+}
+
+.status-error {
+    background-color: var(--danger-color);
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+    font-size: 0.85rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Loading States */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .chat-container {
+        height: 300px;
+    }
+    
+    .user-message .message-content,
+    .assistant-message .message-content {
+        max-width: 95%;
+    }
+    
+    .stat-number {
+        font-size: 1.2rem;
+    }
+}
+
+/* Custom Scrollbar */
+.chat-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.chat-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.chat-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Error States */
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+}
+
+.warning-message {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+}
+
+/* Processing indicator */
+.processing-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    color: var(--secondary-color);
+}
+
+.processing-dots {
+    display: inline-block;
+    position: relative;
+    width: 40px;
+    height: 10px;
+    margin-left: 10px;
+}
+
+.processing-dots div {
+    position: absolute;
+    top: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+
+.processing-dots div:nth-child(1) {
+    left: 4px;
+    animation: processing1 0.6s infinite;
+}
+
+.processing-dots div:nth-child(2) {
+    left: 4px;
+    animation: processing2 0.6s infinite;
+}
+
+.processing-dots div:nth-child(3) {
+    left: 16px;
+    animation: processing2 0.6s infinite;
+}
+
+.processing-dots div:nth-child(4) {
+    left: 28px;
+    animation: processing3 0.6s infinite;
+}
+
+@keyframes processing1 {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+
+@keyframes processing3 {
+    0% { transform: scale(1); }
+    100% { transform: scale(0); }
+}
+
+@keyframes processing2 {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(12px, 0); }
+}
+
+/* Quick question buttons */
+.btn-outline-secondary:hover {
+    transform: translateY(-1px);
+    transition: transform 0.2s ease;
+}
