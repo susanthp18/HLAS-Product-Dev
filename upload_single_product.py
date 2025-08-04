@@ -187,7 +187,7 @@ def test_search(client):
         "Motor insurance benefits"
     ]
 
-    collection = client.collections.get("InsuranceDocument")
+    collection = client.collections.get("InsuranceDocumentChunk")
 
     for query in test_queries:
         print(f"\n   Query: '{query}'")
