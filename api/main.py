@@ -41,15 +41,6 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
 # Initialize the insurance agent service
 print("🚀 Initializing Insurance Agent Service...")
 agent_service = InsuranceAgentService()
