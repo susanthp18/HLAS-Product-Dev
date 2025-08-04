@@ -35,8 +35,8 @@ def create_schema(client):
 
     # Delete existing collection if it exists
     try:
-        if client.collections.exists("InsuranceDocument"):
-            client.collections.delete("InsuranceDocument")
+        if client.collections.exists("InsuranceDocumentChunk"):
+            client.collections.delete("InsuranceDocumentChunk")
             print("   Deleted existing collection")
     except Exception as e:
         print(f"   Note: {e}")
@@ -44,7 +44,7 @@ def create_schema(client):
     # Create collection with schema
     try:
         client.collections.create(
-            name="InsuranceDocument",
+            name="InsuranceDocumentChunk",
             description="Insurance product documents and content",
             vectorizer_config=wvc.config.Configure.Vectorizer.none(),  # We'll provide our own vectors
             properties=[
@@ -151,7 +151,7 @@ def upload_sample_data(client, model):
     ]
 
     uploaded_count = 0
-    collection = client.collections.get("InsuranceDocument")
+    collection = client.collections.get("InsuranceDocumentChunk")
 
     for i, doc in enumerate(sample_documents):
         print(f"   Processing document {i+1}/{len(sample_documents)}: {doc['product_name']} - {doc['document_type']}")

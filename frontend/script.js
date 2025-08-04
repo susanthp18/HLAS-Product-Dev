@@ -1,7 +1,7 @@
 // HLAS Insurance Assistant Frontend JavaScript
 
 // Configuration
-const API_BASE_URL = 'http://13.215.172.229:8000';
+const API_BASE_URL = 'http://localhost:8000';
 let sessionId = null;
 let sessionStats = {
     totalQueries: 0,
