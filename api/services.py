@@ -268,7 +268,14 @@ class InsuranceAgentService:
             if self.retrieval_agent and hasattr(self.retrieval_agent, 'client'):
                 print("🔍 Vector Database: Testing basic connectivity...")
                 collections = self.retrieval_agent.client.collections.list_all()
-                collection_names = [c.name for c in collections]
+                # Handle different return types from Weaviate
+                if isinstance(collections, list):
+                    if collections and hasattr(collections[0], 'name'):
+                        collection_names = [c.name for c in collections]
+                    else:
+                        collection_names = collections  # Already strings
+                else:
+                    collection_names = list(collections) if collections else []
                 print(f"🔍 Vector Database: Found collections: {collection_names}")
                 status["vector_database"] = "connected"
                 print("✅ Vector Database: connected")

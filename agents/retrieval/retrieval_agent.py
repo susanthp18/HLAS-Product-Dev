@@ -52,9 +52,20 @@ class RetrievalAgent:
             print("✅ RetrievalAgent: Weaviate client connected successfully")
 
             # Test connection by listing collections
-            collections = self.client.collections.list_all()
-            collection_names = [c.name for c in collections]
-            print(f"🔍 RetrievalAgent: Available collections: {collection_names}")
+            try:
+                collections = self.client.collections.list_all()
+                # Handle different return types from Weaviate
+                if isinstance(collections, list):
+                    if collections and hasattr(collections[0], 'name'):
+                        collection_names = [c.name for c in collections]
+                    else:
+                        collection_names = collections  # Already strings
+                else:
+                    collection_names = list(collections) if collections else []
+                print(f"🔍 RetrievalAgent: Available collections: {collection_names}")
+            except Exception as e:
+                print(f"⚠️ RetrievalAgent: Could not list collections: {str(e)}")
+                collection_names = []
 
         except Exception as e:
             print(f"❌ RetrievalAgent: Failed to connect to Weaviate: {str(e)}")
