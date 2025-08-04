@@ -53,16 +53,27 @@ def check_weaviate_connection(host, port):
             print("✅ Weaviate connection successful")
 
             # Check existing collections
-            collections = client.collections.list_all()
-            if collections:
-                print(f"📊 Existing collections: {[c.name for c in collections]}")
-            else:
-                print("📊 No existing collections found")
+            try:
+                collections = client.collections.list_all()
+                if collections:
+                    collection_names = []
+                    for collection in collections:
+                        if hasattr(collection, 'name'):
+                            collection_names.append(collection.name)
+                        else:
+                            collection_names.append(str(collection))
+                    print(f"📊 Existing collections: {collection_names}")
+                else:
+                    print("📊 No existing collections found")
+            except Exception as e:
+                print(f"⚠️  Could not list collections: {e}")
+                print("📊 Collections check skipped, but connection is working")
 
             client.close()
             return True
         else:
             print("❌ Weaviate is not ready")
+            client.close()
             return False
 
     except Exception as e:
@@ -202,10 +213,18 @@ def main():
             print(f"✅ Weaviate collections after ingestion:")
             for collection in collections:
                 try:
-                    count = collection.aggregate.over_all(total_count=True).total_count
-                    print(f"   📊 {collection.name}: {count} objects")
-                except:
-                    print(f"   📊 {collection.name}: count unavailable")
+                    collection_name = collection.name if hasattr(collection, 'name') else str(collection)
+                    if hasattr(collection, 'aggregate'):
+                        count = collection.aggregate.over_all(total_count=True).total_count
+                        print(f"   📊 {collection_name}: {count} objects")
+                    else:
+                        # Try alternative method to get count
+                        collection_obj = client.collections.get(collection_name)
+                        count = collection_obj.aggregate.over_all(total_count=True).total_count
+                        print(f"   📊 {collection_name}: {count} objects")
+                except Exception as count_error:
+                    collection_name = collection.name if hasattr(collection, 'name') else str(collection)
+                    print(f"   📊 {collection_name}: count unavailable ({count_error})")
 
             client.close()
 
