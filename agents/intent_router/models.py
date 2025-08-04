@@ -71,7 +71,7 @@ class IntentClassification:
 # Product mapping for consistent naming
 PRODUCT_MAPPING = {
     # Standard product names
-    "car": "Car",
+    "car": "Motor",
     "early": "Early", 
     "family": "Family",
     "home": "Home",
@@ -80,12 +80,12 @@ PRODUCT_MAPPING = {
     "travel": "Travel",
     
     # Alternative names and aliases
-    "vehicle": "Car",
-    "auto": "Car",
-    "automobile": "Car",
-    "motor": "Car",
-    "car protect360": "Car",
-    "car protect 360": "Car",
+    "vehicle": "Motor",
+    "auto": "Motor",
+    "automobile": "Motor",
+    "motor": "Motor",
+    "car protect360": "Motor",
+    "car protect 360": "Motor",
     
     "early protect360": "Early",
     "early protect 360": "Early",

@@ -46,7 +46,7 @@ class IntentRouterAgent:
             raise
         
         # Known products
-        self.products = ["Car", "Early", "Family", "Home", "Hospital", "Maid", "Travel"]
+        self.products = ["Motor", "Early", "Family", "Home", "Hospital", "Maid", "Travel"]
         
     def classify_intent(self, user_query: str) -> IntentClassification:
         """
@@ -116,7 +116,7 @@ Here are some examples:
 User Query: "What is the windscreen excess for Car Protect360?"
 {{
   "primary_intent": "PRODUCT_INQUIRY",
-  "product_focus": ["Car"],
+  "product_focus": ["Motor"],
   "entities": ["windscreen excess"],
   "is_purchase_intent": false,
   "original_query": "What is the windscreen excess for Car Protect360?"
@@ -152,7 +152,7 @@ User Query: "How do I make a claim?"
 User Query: "Tell me about your travel and car policies"
 {{
   "primary_intent": "PRODUCT_INQUIRY",
-  "product_focus": ["Travel", "Car"],
+  "product_focus": ["Travel", "Motor"],
   "entities": ["policies"],
   "is_purchase_intent": false,
   "original_query": "Tell me about your travel and car policies"
