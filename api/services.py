@@ -130,9 +130,10 @@ class InsuranceAgentService:
         # Step 1: Intent Classification
         print(f"🔍 InsuranceAgentService: Step 1 - Intent Classification")
         intent_classification = self.intent_router.classify_intent(query)
-        print(f"   Intent: {intent_classification.intent_type}")
-        print(f"   Product: {intent_classification.product_type}")
-        print(f"   Confidence: {intent_classification.confidence_score}")
+        print(f"   Primary Intent: {intent_classification.primary_intent}")
+        print(f"   Product Focus: {intent_classification.product_focus}")
+        print(f"   Entities: {intent_classification.entities}")
+        print(f"   Is Purchase Intent: {intent_classification.is_purchase_intent}")
 
         # Step 2: Document Retrieval
         print(f"🔍 InsuranceAgentService: Step 2 - Document Retrieval")
