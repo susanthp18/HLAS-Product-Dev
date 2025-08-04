@@ -4,78 +4,81 @@ Upload a single product to Weaviate for testing
 
 import os
 import weaviate
+import weaviate.classes as wvc
 import google.generativeai as genai
 from config import Config
 
 def setup_weaviate_client():
     """Setup Weaviate client"""
     print("🔧 Connecting to Weaviate...")
-    
-    client = weaviate.Client(
-        url=f"http://{Config.WEAVIATE_HOST}:{Config.WEAVIATE_PORT}",
-        timeout_config=(5, 15)
-    )
-    
-    # Test connection
-    if client.is_ready():
-        print("✅ Weaviate connection successful")
-        return client
-    else:
-        print("❌ Weaviate connection failed")
+
+    try:
+        client = weaviate.connect_to_local(
+            host=Config.WEAVIATE_HOST,
+            port=Config.WEAVIATE_PORT
+        )
+
+        # Test connection
+        if client.is_ready():
+            print("✅ Weaviate connection successful")
+            return client
+        else:
+            print("❌ Weaviate connection failed")
+            return None
+    except Exception as e:
+        print(f"❌ Weaviate connection error: {e}")
         return None
 
 def create_schema(client):
     """Create Weaviate schema"""
     print("🔧 Creating Weaviate schema...")
-    
-    # Delete existing schema if it exists
+
+    # Delete existing collection if it exists
     try:
-        client.schema.delete_all()
-        print("   Deleted existing schema")
-    except:
-        pass
-    
-    # Define schema
-    schema = {
-        "classes": [
-            {
-                "class": "InsuranceDocument",
-                "description": "Insurance product documents and content",
-                "vectorizer": "none",  # We'll provide our own vectors
-                "properties": [
-                    {
-                        "name": "content",
-                        "dataType": ["text"],
-                        "description": "The main content of the document chunk"
-                    },
-                    {
-                        "name": "product_name",
-                        "dataType": ["string"],
-                        "description": "Name of the insurance product"
-                    },
-                    {
-                        "name": "document_type",
-                        "dataType": ["string"],
-                        "description": "Type of document (Terms, Benefits, FAQs)"
-                    },
-                    {
-                        "name": "source_file",
-                        "dataType": ["string"],
-                        "description": "Source file name"
-                    },
-                    {
-                        "name": "section_hierarchy",
-                        "dataType": ["string[]"],
-                        "description": "Hierarchical section path"
-                    }
-                ]
-            }
-        ]
-    }
-    
-    # Create schema
-    client.schema.create(schema)
-    print("✅ Schema created successfully")
+        if client.collections.exists("InsuranceDocument"):
+            client.collections.delete("InsuranceDocument")
+            print("   Deleted existing collection")
+    except Exception as e:
+        print(f"   Note: {e}")
+
+    # Create collection with schema
+    try:
+        client.collections.create(
+            name="InsuranceDocument",
+            description="Insurance product documents and content",
+            vectorizer_config=wvc.config.Configure.Vectorizer.none(),  # We'll provide our own vectors
+            properties=[
+                wvc.config.Property(
+                    name="content",
+                    data_type=wvc.config.DataType.TEXT,
+                    description="The main content of the document chunk"
+                ),
+                wvc.config.Property(
+                    name="product_name",
+                    data_type=wvc.config.DataType.TEXT,
+                    description="Name of the insurance product"
+                ),
+                wvc.config.Property(
+                    name="document_type",
+                    data_type=wvc.config.DataType.TEXT,
+                    description="Type of document (Terms, Benefits, FAQs)"
+                ),
+                wvc.config.Property(
+                    name="source_file",
+                    data_type=wvc.config.DataType.TEXT,
+                    description="Source file name"
+                ),
+                wvc.config.Property(
+                    name="section_hierarchy",
+                    data_type=wvc.config.DataType.TEXT_ARRAY,
+                    description="Hierarchical section path"
+                )
+            ]
+        )
+        print("✅ Schema created successfully")
+    except Exception as e:
+        print(f"❌ Error creating schema: {e}")
+        raise
 
 def setup_gemini():
     """Setup Gemini API"""
@@ -107,7 +110,7 @@ def create_embedding(text, model):
 def upload_sample_data(client, model):
     """Upload sample insurance data"""
     print("📝 Uploading sample data...")
-    
+
     # Sample insurance content
     sample_documents = [
         {
@@ -146,65 +149,66 @@ def upload_sample_data(client, model):
             "section_hierarchy": ["Medical", "FAQ"]
         }
     ]
-    
+
     uploaded_count = 0
-    
+    collection = client.collections.get("InsuranceDocument")
+
     for i, doc in enumerate(sample_documents):
         print(f"   Processing document {i+1}/{len(sample_documents)}: {doc['product_name']} - {doc['document_type']}")
-        
+
         # Create embedding
         embedding = create_embedding(doc['content'], model)
         if embedding is None:
             print(f"   ❌ Failed to create embedding for document {i+1}")
             continue
-        
+
         # Upload to Weaviate
         try:
-            client.data_object.create(
-                data_object=doc,
-                class_name="InsuranceDocument",
+            collection.data.insert(
+                properties=doc,
                 vector=embedding
             )
             uploaded_count += 1
             print(f"   ✅ Uploaded document {i+1}")
         except Exception as e:
             print(f"   ❌ Failed to upload document {i+1}: {e}")
-    
+
     print(f"✅ Uploaded {uploaded_count}/{len(sample_documents)} documents")
     return uploaded_count
 
 def test_search(client):
     """Test search functionality"""
     print("\n🔍 Testing search functionality...")
-    
+
     # Test queries
     test_queries = [
         "What is covered under car insurance?",
         "Travel medical coverage amount",
         "Motor insurance benefits"
     ]
-    
+
+    collection = client.collections.get("InsuranceDocument")
+
     for query in test_queries:
         print(f"\n   Query: '{query}'")
-        
+
         try:
             # Hybrid search (keyword + semantic)
-            result = client.query.get("InsuranceDocument", [
-                "content", "product_name", "document_type", "source_file"
-            ]).with_hybrid(
+            response = collection.query.hybrid(
                 query=query,
-                alpha=0.5  # Balance between keyword and semantic search
-            ).with_limit(2).do()
-            
-            documents = result.get('data', {}).get('Get', {}).get('InsuranceDocument', [])
-            
-            if documents:
-                for i, doc in enumerate(documents):
-                    print(f"     Result {i+1}: {doc['product_name']} - {doc['document_type']}")
-                    print(f"     Content: {doc['content'][:100]}...")
+                alpha=0.5,  # Balance between keyword and semantic search
+                limit=2,
+                return_properties=["content", "product_name", "document_type", "source_file"]
+            )
+
+            if response.objects:
+                for i, obj in enumerate(response.objects):
+                    props = obj.properties
+                    print(f"     Result {i+1}: {props['product_name']} - {props['document_type']}")
+                    print(f"     Content: {props['content'][:100]}...")
             else:
                 print("     No results found")
-                
+
         except Exception as e:
             print(f"     ❌ Search failed: {e}")
 
@@ -253,6 +257,9 @@ def main():
         print("   - 'Motor insurance benefits'")
     else:
         print("\n❌ No documents were uploaded. Check the errors above.")
+
+    # Close connection
+    client.close()
 
 if __name__ == "__main__":
     main()
