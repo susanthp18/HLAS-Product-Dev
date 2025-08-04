@@ -193,18 +193,19 @@ def test_search(client):
         print(f"\n   Query: '{query}'")
 
         try:
-            # Hybrid search (keyword + semantic)
-            response = collection.query.hybrid(
+            # Use keyword search (BM25) since we don't have vectorizer configured
+            response = collection.query.bm25(
                 query=query,
-                alpha=0.5,  # Balance between keyword and semantic search
                 limit=2,
-                return_properties=["content", "product_name", "document_type", "source_file"]
+                return_properties=["content", "product_name", "document_type", "source_file"],
+                return_metadata=['score']
             )
 
             if response.objects:
                 for i, obj in enumerate(response.objects):
                     props = obj.properties
-                    print(f"     Result {i+1}: {props['product_name']} - {props['document_type']}")
+                    score = obj.metadata.score if obj.metadata else 0
+                    print(f"     ✅ Result {i+1}: {props['product_name']} - {props['document_type']} (Score: {score:.3f})")
                     print(f"     Content: {props['content'][:100]}...")
             else:
                 print("     No results found")
