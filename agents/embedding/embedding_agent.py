@@ -180,7 +180,7 @@ class EmbeddingAgent:
         enriched_chunks = []
 
         for i, chunk in enumerate(chunks, 1):
-            print(f"🔄 [{i:3d}/{len(chunks)}] Processing: {chunk.product_name} - {chunk.document_type} (Chunk {chunk.chunk_index})", end=" ", flush=True)
+            print(f"🔄 [{i:3d}/{len(chunks)}] Processing: {chunk.product_name} - {chunk.document_type} (ID: {chunk.chunk_id[:8]})", end=" ", flush=True)
 
             try:
                 # Enrich single chunk
