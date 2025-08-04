@@ -96,7 +96,56 @@ class WeaviateVectorStore:
                 print(f"Error generating embeddings for chunk {chunk.chunk_id}: {e}")
         
         return chunks
-    
+
+    def generate_embeddings_with_progress(self, chunks: List[DocumentChunk]) -> List[DocumentChunk]:
+        """Generate embeddings for chunks using Gemini with detailed progress tracking"""
+
+        for i, chunk in enumerate(chunks, 1):
+            print(f"🔄 [{i:3d}/{len(chunks)}] Embedding: {chunk.product_name} - {chunk.document_type} (Chunk {chunk.chunk_index})", end=" ", flush=True)
+
+            try:
+                embeddings_generated = 0
+
+                # Generate content embedding
+                if chunk.content:
+                    content_result = genai.embed_content(
+                        model=Config.EMBEDDING_MODEL,
+                        content=chunk.content[:2048]  # Limit length
+                    )
+                    chunk.content_embedding = content_result['embedding']
+                    embeddings_generated += 1
+
+                # Generate summary embedding
+                if chunk.summary:
+                    summary_result = genai.embed_content(
+                        model=Config.EMBEDDING_MODEL,
+                        content=chunk.summary
+                    )
+                    chunk.summary_embedding = summary_result['embedding']
+                    embeddings_generated += 1
+
+                # Generate hypothetical questions embedding
+                if chunk.hypothetical_questions:
+                    questions_text = " ".join(chunk.hypothetical_questions)
+                    questions_result = genai.embed_content(
+                        model=Config.EMBEDDING_MODEL,
+                        content=questions_text[:2048]  # Limit length
+                    )
+                    chunk.hypothetical_question_embedding = questions_result['embedding']
+                    embeddings_generated += 1
+
+                print(f"✅ ({embeddings_generated} embeddings)")
+
+            except Exception as e:
+                print(f"❌ Error: {str(e)[:50]}...")
+
+            # Show periodic summary
+            if i % 50 == 0:
+                print(f"📈 Milestone: {i}/{len(chunks)} chunks embedded ({i/len(chunks)*100:.1f}%)")
+
+        print(f"✅ Embedding generation complete: {len(chunks)} chunks processed")
+        return chunks
+
     def insert_chunks(self, chunks: List[DocumentChunk], batch_size: int = 100):
         """Insert chunks into Weaviate using batch operations"""
         collection = self.client.collections.get(self.collection_name)

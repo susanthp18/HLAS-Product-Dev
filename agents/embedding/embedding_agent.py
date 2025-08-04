@@ -174,28 +174,42 @@ class EmbeddingAgent:
     
     def _enrich_chunks(self, chunks: List[DocumentChunk]) -> List[DocumentChunk]:
         """Phase 3: Enrich chunks with summaries and hypothetical questions"""
-        print("Enriching chunks with AI-generated metadata...")
-        
-        # Process in batches to show progress
-        batch_size = 50
+        print(f"Enriching {len(chunks)} chunks with AI-generated metadata...")
+        print("📊 Progress will be shown for each chunk...")
+
         enriched_chunks = []
-        
-        for i in range(0, len(chunks), batch_size):
-            batch = chunks[i:i + batch_size]
-            enriched_batch = self.enricher.enrich_chunks_batch(batch)
-            enriched_chunks.extend(enriched_batch)
-            
-            progress = min(i + batch_size, len(chunks))
-            print(f"  Progress: {progress}/{len(chunks)} chunks enriched")
-        
+
+        for i, chunk in enumerate(chunks, 1):
+            print(f"🔄 [{i:3d}/{len(chunks)}] Processing: {chunk.product_name} - {chunk.document_type} (Chunk {chunk.chunk_index})", end=" ", flush=True)
+
+            try:
+                # Enrich single chunk
+                enriched_batch = self.enricher.enrich_chunks_batch([chunk])
+                if enriched_batch:
+                    enriched_chunks.extend(enriched_batch)
+                    print("✅")
+                else:
+                    print("⚠️  (no enrichment)")
+                    enriched_chunks.append(chunk)  # Keep original if enrichment fails
+
+            except Exception as e:
+                print(f"❌ Error: {str(e)[:50]}...")
+                enriched_chunks.append(chunk)  # Keep original if enrichment fails
+
+            # Show periodic summary
+            if i % 50 == 0:
+                print(f"📈 Milestone: {i}/{len(chunks)} chunks processed ({i/len(chunks)*100:.1f}%)")
+
+        print(f"✅ Enrichment complete: {len(enriched_chunks)} chunks enriched")
         return enriched_chunks
     
     def _generate_embeddings(self, chunks: List[DocumentChunk]) -> List[DocumentChunk]:
         """Generate embeddings for all chunks"""
-        print("Generating multi-vector embeddings...")
-        
-        # Generate embeddings using vector store
-        embedded_chunks = self.vector_store.generate_embeddings(chunks)
+        print(f"Generating multi-vector embeddings for {len(chunks)} chunks...")
+        print("📊 Progress will be shown for each chunk...")
+
+        # Generate embeddings using vector store with progress tracking
+        embedded_chunks = self.vector_store.generate_embeddings_with_progress(chunks)
         
         # Count successful embeddings
         content_count = sum(1 for c in embedded_chunks if c.content_embedding)
