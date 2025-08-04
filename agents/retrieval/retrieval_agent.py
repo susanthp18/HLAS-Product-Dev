@@ -368,9 +368,11 @@ class RetrievalAgent:
     
     def _multi_vector_search(self, collection, query: str, where_filter: Optional[Filter], limit: int, request: RetrievalRequest = None) -> List[ChunkResult]:
         """Execute multi-vector weighted search"""
+        print(f"🔍 RetrievalAgent: Multi-vector search for query: '{query}'")
 
         # Generate query embedding
         query_embedding = self._generate_query_embedding(query)
+        print(f"🔍 RetrievalAgent: Generated query embedding (length: {len(query_embedding)})")
 
 
 
@@ -436,7 +438,11 @@ class RetrievalAgent:
                 continue
 
         # Combine and deduplicate results
-        return self._deduplicate_and_sort(results, limit)
+        final_results = self._deduplicate_and_sort(results, limit)
+        print(f"🔍 RetrievalAgent: Found {len(final_results)} results after deduplication")
+        for i, result in enumerate(final_results[:3]):  # Show first 3 results
+            print(f"   Result {i+1}: {result.product_name} - {result.document_type} (Score: {result.relevance_score:.3f})")
+        return final_results
     
     def _hybrid_search(self, collection, query: str, where_filter: Optional[Filter], limit: int, vector_name: str) -> List[ChunkResult]:
         """Execute hybrid search (vector + keyword)"""
