@@ -85,26 +85,32 @@ class RetrievalAgent:
     def retrieve(self, request: RetrievalRequest) -> List[ChunkResult]:
         """
         Main retrieval method
-        
+
         Args:
             request: RetrievalRequest containing intent classification and parameters
-            
+
         Returns:
             List of ChunkResult objects with relevance scores
         """
         try:
+            print(f"🔍 RetrievalAgent: Starting retrieval for query: '{request.query}'")
+
             # Step 1: Parse the Intent (Deconstruct the Work Order)
             query = self._enhance_query(request.query, request.entities)
-            
+            print(f"🔍 RetrievalAgent: Enhanced query: '{query}'")
+
             # Step 2: Construct the Filter (Precision)
             where_filter = self._build_product_filter(request.product_focus)
-            
+            print(f"🔍 RetrievalAgent: Product filter: {where_filter}")
+
             # Step 3: Execute the Simple Hybrid Search (Relevance)
+            print(f"🔍 RetrievalAgent: Executing simple hybrid search...")
             candidates = self._execute_simple_hybrid_search(
                 query=query,
                 where_filter=where_filter,
                 limit=request.top_k
             )
+            print(f"🔍 RetrievalAgent: Found {len(candidates)} candidates from search")
 
             # Step 4: Ensure balanced results for comparison queries
             if request.intent_classification.primary_intent.value == "COMPARISON_INQUIRY" and len(request.product_focus) > 1:
@@ -113,10 +119,13 @@ class RetrievalAgent:
                 final_results = candidates[:request.top_k]
 
             # Filter by minimum relevance score
+            print(f"🔍 RetrievalAgent: Before relevance filtering: {len(final_results)} results")
+            print(f"🔍 RetrievalAgent: Min relevance threshold: {self.search_config.min_relevance_score}")
             final_results = [
                 result for result in final_results
                 if result.relevance_score >= self.search_config.min_relevance_score
             ]
+            print(f"🔍 RetrievalAgent: After relevance filtering: {len(final_results)} results")
             
             return final_results
             
