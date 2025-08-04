@@ -128,26 +128,38 @@ class InsuranceAgentService:
             print(f"ℹ️  InsuranceAgentService: No session_id available, skipping conversation storage")
 
         # Step 1: Intent Classification
+        print(f"🔍 InsuranceAgentService: Step 1 - Intent Classification")
         intent_classification = self.intent_router.classify_intent(query)
-        
+        print(f"   Intent: {intent_classification.intent_type}")
+        print(f"   Product: {intent_classification.product_type}")
+        print(f"   Confidence: {intent_classification.confidence_score}")
+
         # Step 2: Document Retrieval
+        print(f"🔍 InsuranceAgentService: Step 2 - Document Retrieval")
         retrieval_request = RetrievalRequest(
             intent_classification=intent_classification,
             top_k=max_results,
             search_strategy=SearchStrategy.MULTI_VECTOR
         )
-        
+
         context_chunks = self.retrieval_agent.retrieve(retrieval_request)
-        
+        print(f"   Retrieved {len(context_chunks)} context chunks")
+        for i, chunk in enumerate(context_chunks[:3]):  # Show first 3
+            print(f"   Chunk {i+1}: {chunk.product_name} - {chunk.document_type} (Score: {chunk.relevance_score:.3f})")
+
         # Step 3: Response Generation
+        print(f"🔍 InsuranceAgentService: Step 3 - Response Generation")
         response_request = ResponseRequest(
             original_query=query,
             context_chunks=context_chunks,
             citation_style=CitationStyle.NUMBERED,
             include_confidence_score=include_confidence
         )
-        
+
         response_result = self.response_agent.generate_response(response_request)
+        print(f"   Generated answer length: {len(response_result.answer)} chars")
+        print(f"   Confidence score: {response_result.confidence_score}")
+        print(f"   Has sufficient context: {response_result.has_sufficient_context}")
 
         # Store assistant response in conversation history
         if self.conversation_service and session_id:
