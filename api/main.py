@@ -135,9 +135,16 @@ async def health_check():
 async def get_agents_status():
     """Get detailed status of all agents in the pipeline"""
     try:
+        print("🔍 API: Getting agent status...")
         status = await agent_service.get_detailed_agent_status()
-        return AgentPipelineStatus(**status)
+        print(f"🔍 API: Agent status retrieved: {status}")
+        result = AgentPipelineStatus(**status)
+        print(f"🔍 API: Returning status: {result}")
+        return result
     except Exception as e:
+        print(f"❌ API: Failed to get agent status: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=500,
             detail=f"Failed to get agent status: {str(e)}"
@@ -217,6 +224,9 @@ async def query_insurance(request: QueryRequest):
     except HTTPException:
         raise
     except Exception as e:
+        print(f"❌ API: Query processing failed: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=500,
             detail=f"Failed to process query: {str(e)}"
