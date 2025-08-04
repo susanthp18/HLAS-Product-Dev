@@ -26,9 +26,17 @@ class ResponseGenerationAgent:
     
     def __init__(self, gemini_api_key: str = None):
         """Initialize the Response Generation Agent"""
+        print("🔧 ResponseGenerationAgent: Initializing...")
+
         self.gemini_api_key = gemini_api_key or Config.GEMINI_API_KEY
-        genai.configure(api_key=self.gemini_api_key)
-        
+
+        try:
+            genai.configure(api_key=self.gemini_api_key)
+            print("✅ ResponseGenerationAgent: Gemini API configured")
+        except Exception as e:
+            print(f"❌ ResponseGenerationAgent: Failed to configure Gemini API: {str(e)}")
+            raise
+
         # Response generation configuration
         self.generation_config = {
             "temperature": 0.1,  # Low temperature for factual responses
@@ -36,12 +44,17 @@ class ResponseGenerationAgent:
             "top_k": 40,
             "max_output_tokens": 1024,
         }
-        
+
         # Initialize the model
-        self.model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash-exp",
-            generation_config=self.generation_config
-        )
+        try:
+            self.model = genai.GenerativeModel(
+                model_name="gemini-2.0-flash-exp",
+                generation_config=self.generation_config
+            )
+            print("✅ ResponseGenerationAgent: Gemini model initialized")
+        except Exception as e:
+            print(f"❌ ResponseGenerationAgent: Failed to initialize Gemini model: {str(e)}")
+            raise
     
     def generate_response(self, request: ResponseRequest) -> ResponseResult:
         """

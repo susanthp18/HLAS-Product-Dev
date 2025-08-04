@@ -28,28 +28,48 @@ class RetrievalAgent:
     relevant document chunks from Weaviate based on intent classification.
     """
     
-    def __init__(self, 
+    def __init__(self,
                  weaviate_host: str = None,
                  weaviate_port: int = None,
                  gemini_api_key: str = None,
                  search_config: SearchConfig = None):
         """Initialize the Retrieval Agent"""
-        
+
         # Configuration
         self.weaviate_host = weaviate_host or Config.WEAVIATE_HOST
         self.weaviate_port = weaviate_port or Config.WEAVIATE_PORT
         self.gemini_api_key = gemini_api_key or Config.GEMINI_API_KEY
         self.search_config = search_config or SearchConfig()
-        
+
+        print(f"🔧 RetrievalAgent: Connecting to Weaviate at {self.weaviate_host}:{self.weaviate_port}")
+
         # Initialize Weaviate client
-        self.client = weaviate.connect_to_local(
-            host=self.weaviate_host, 
-            port=self.weaviate_port
-        )
+        try:
+            self.client = weaviate.connect_to_local(
+                host=self.weaviate_host,
+                port=self.weaviate_port
+            )
+            print("✅ RetrievalAgent: Weaviate client connected successfully")
+
+            # Test connection by listing collections
+            collections = self.client.collections.list_all()
+            collection_names = [c.name for c in collections]
+            print(f"🔍 RetrievalAgent: Available collections: {collection_names}")
+
+        except Exception as e:
+            print(f"❌ RetrievalAgent: Failed to connect to Weaviate: {str(e)}")
+            raise
+
         self.collection_name = "InsuranceDocumentChunk"
-        
+        print(f"🔧 RetrievalAgent: Target collection: {self.collection_name}")
+
         # Initialize Gemini for embeddings
-        genai.configure(api_key=self.gemini_api_key)
+        try:
+            genai.configure(api_key=self.gemini_api_key)
+            print("✅ RetrievalAgent: Gemini API configured")
+        except Exception as e:
+            print(f"❌ RetrievalAgent: Failed to configure Gemini API: {str(e)}")
+            raise
     
     def retrieve(self, request: RetrievalRequest) -> List[ChunkResult]:
         """

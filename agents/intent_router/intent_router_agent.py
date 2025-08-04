@@ -27,9 +27,23 @@ class IntentRouterAgent:
     
     def __init__(self, gemini_api_key: str = None):
         """Initialize the Intent Router Agent"""
+        print("🔧 IntentRouterAgent: Initializing...")
+
         self.gemini_api_key = gemini_api_key or Config.GEMINI_API_KEY
-        genai.configure(api_key=self.gemini_api_key)
-        self.model = genai.GenerativeModel(Config.GENERATION_MODEL)
+
+        try:
+            genai.configure(api_key=self.gemini_api_key)
+            print("✅ IntentRouterAgent: Gemini API configured")
+        except Exception as e:
+            print(f"❌ IntentRouterAgent: Failed to configure Gemini API: {str(e)}")
+            raise
+
+        try:
+            self.model = genai.GenerativeModel(Config.GENERATION_MODEL)
+            print("✅ IntentRouterAgent: Gemini model initialized")
+        except Exception as e:
+            print(f"❌ IntentRouterAgent: Failed to initialize Gemini model: {str(e)}")
+            raise
         
         # Known products
         self.products = ["Car", "Early", "Family", "Home", "Hospital", "Maid", "Travel"]

@@ -38,15 +38,26 @@ class InsuranceAgentService:
     def _initialize_agents(self):
         """Initialize all agents with error handling"""
         try:
+            print("🔧 InsuranceAgentService: Initializing Intent Router...")
             self.intent_router = IntentRouterAgent(gemini_api_key=Config.GEMINI_API_KEY)
+            print("✅ InsuranceAgentService: Intent Router initialized")
+
+            print("🔧 InsuranceAgentService: Initializing Retrieval Agent...")
             self.retrieval_agent = RetrievalAgent(
                 weaviate_host=Config.WEAVIATE_HOST,
                 weaviate_port=Config.WEAVIATE_PORT,
                 gemini_api_key=Config.GEMINI_API_KEY
             )
+            print("✅ InsuranceAgentService: Retrieval Agent initialized")
+
+            print("🔧 InsuranceAgentService: Initializing Response Agent...")
             self.response_agent = ResponseGenerationAgent(gemini_api_key=Config.GEMINI_API_KEY)
+            print("✅ InsuranceAgentService: Response Agent initialized")
+
         except Exception as e:
-            print(f"Error initializing agents: {e}")
+            print(f"❌ InsuranceAgentService: Error initializing agents: {e}")
+            import traceback
+            traceback.print_exc()
             raise
 
     def _initialize_conversation_service(self):
@@ -203,50 +214,72 @@ class InsuranceAgentService:
     async def get_detailed_agent_status(self) -> Dict[str, str]:
         """Get detailed status information for each agent"""
         status = {}
-        
+        print("🔍 InsuranceAgentService: Starting detailed agent status check...")
+
         # Intent Router status
         try:
+            print("🔍 Checking Intent Router status...")
             if self.intent_router:
                 status["intent_router"] = "operational"
+                print("✅ Intent Router: operational")
             else:
                 status["intent_router"] = "not_initialized"
-        except Exception:
+                print("❌ Intent Router: not_initialized")
+        except Exception as e:
             status["intent_router"] = "error"
-        
+            print(f"❌ Intent Router: error - {str(e)}")
+
         # Retrieval Agent status
         try:
+            print("🔍 Checking Retrieval Agent status...")
             if self.retrieval_agent and hasattr(self.retrieval_agent, 'client'):
+                print("🔍 Retrieval Agent: Testing vector database connection...")
                 # Test vector database connection
                 collection = self.retrieval_agent.client.collections.get('InsuranceDocumentChunk')
                 if collection:
                     status["retrieval"] = "operational"
+                    print("✅ Retrieval Agent: operational - collection found")
                 else:
                     status["retrieval"] = "collection_not_found"
+                    print("❌ Retrieval Agent: collection_not_found")
             else:
                 status["retrieval"] = "not_initialized"
+                print("❌ Retrieval Agent: not_initialized - no client")
         except Exception as e:
             status["retrieval"] = f"error: {str(e)}"
-        
+            print(f"❌ Retrieval Agent: error - {str(e)}")
+
         # Response Generation Agent status
         try:
+            print("🔍 Checking Response Generation Agent status...")
             if self.response_agent and hasattr(self.response_agent, 'model'):
                 status["response_generation"] = "operational"
+                print("✅ Response Generation Agent: operational")
             else:
                 status["response_generation"] = "not_initialized"
-        except Exception:
+                print("❌ Response Generation Agent: not_initialized - no model")
+        except Exception as e:
             status["response_generation"] = "error"
-        
+            print(f"❌ Response Generation Agent: error - {str(e)}")
+
         # Vector Database status
         try:
+            print("🔍 Checking Vector Database status...")
             if self.retrieval_agent and hasattr(self.retrieval_agent, 'client'):
-                # Test basic connectivity
-                self.retrieval_agent.client.collections.list_all()
+                print("🔍 Vector Database: Testing basic connectivity...")
+                collections = self.retrieval_agent.client.collections.list_all()
+                collection_names = [c.name for c in collections]
+                print(f"🔍 Vector Database: Found collections: {collection_names}")
                 status["vector_database"] = "connected"
+                print("✅ Vector Database: connected")
             else:
                 status["vector_database"] = "disconnected"
+                print("❌ Vector Database: disconnected - no client")
         except Exception as e:
             status["vector_database"] = f"error: {str(e)}"
-        
+            print(f"❌ Vector Database: error - {str(e)}")
+
+        print(f"🔍 InsuranceAgentService: Final status: {status}")
         return status
 
     def create_conversation_session(self, user_id: Optional[str] = None, platform: str = "web"):
